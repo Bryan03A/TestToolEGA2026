@@ -1,0 +1,2634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Estrategia, Gestión y Adquisición en los SI</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<style>
+:root {
+  --blue:#185FA5; --blue-light:#E6F1FB; --blue-mid:#378ADD; --blue-dark:#0C447C;
+  --green:#3B6D11; --green-light:#EAF3DE; --green-dark:#27500A;
+  --red:#A32D2D; --red-light:#FCEBEB;
+  --purple:#534AB7; --purple-light:#EEEDFE; --purple-dark:#3C3489;
+  --amber:#BA7517; --amber-light:#FAEEDA;
+  --bg:#F7F8FA; --card:#FFFFFF;
+  --border:#E2E6EC; --border2:#CDD4DF;
+  --text:#1A2030; --text2:#5A6478; --text3:#8A94A6;
+  --fs-base: clamp(14px, 2.2vw, 17px);
+  --fs-sm:   clamp(11px, 1.7vw, 13px);
+  --fs-lg:   clamp(16px, 2.8vw, 20px);
+  --fs-xl:   clamp(19px, 3.5vw, 24px);
+  --fs-xxl:  clamp(22px, 4.5vw, 30px);
+  --radius-sm:8px; --radius-md:12px; --radius-lg:16px; --radius-xl:20px;
+  --pad: clamp(14px, 4vw, 22px);
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+html { font-size: var(--fs-base); }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background:var(--bg); color:var(--text); min-height:100vh; }
+
+/* ── PAGES ── */
+.page { display:none; padding-bottom:2.5rem; }
+.page.active { display:block; }
+
+/* ── HEADER ── */
+.hdr { background:linear-gradient(135deg,var(--blue-dark) 0%,var(--blue) 100%);
+  padding:var(--pad) var(--pad) calc(var(--pad)*0.85);
+  border-radius:0 0 var(--radius-xl) var(--radius-xl); margin-bottom:1.4rem; }
+.hdr-title { font-size:var(--fs-xxl); font-weight:700; color:#fff; letter-spacing:-.3px; }
+.hdr-sub { font-size:var(--fs-sm); color:#B5D4F4; margin-top:3px; }
+
+/* ── SECTION LABEL ── */
+.slbl { font-size:var(--fs-sm); font-weight:600; color:var(--text3);
+  text-transform:uppercase; letter-spacing:.08em;
+  padding:0 var(--pad); margin-bottom:.65rem; }
+
+/* ── BANK CARDS ── */
+.bank-card { display:flex; align-items:center; gap:.85rem;
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:var(--radius-lg); padding:.9rem var(--pad);
+  margin:0 var(--pad) .6rem; cursor:pointer;
+  transition:border-color .15s, box-shadow .15s; }
+.bank-card:active { transform:scale(.98); }
+.bank-card:hover { border-color:var(--blue-mid); box-shadow:0 2px 10px rgba(24,95,165,.1); }
+.bank-card.unavail { opacity:.42; cursor:not-allowed; pointer-events:none; }
+.bank-icon { width:clamp(40px,9vw,50px); height:clamp(40px,9vw,50px);
+  border-radius:var(--radius-md); display:flex; align-items:center; justify-content:center;
+  font-size:var(--fs-lg); font-weight:700; flex-shrink:0; }
+.b1{background:#EEEDFE;color:#534AB7} .b2{background:#E1F5EE;color:#0F6E56}
+.b3{background:#FAEEDA;color:#BA7517} .b4{background:#E6F1FB;color:#185FA5}
+.bank-info { flex:1; min-width:0; }
+.bank-name { font-size:var(--fs-base); font-weight:600; color:var(--text); }
+.bank-count { font-size:var(--fs-sm); color:var(--text2); margin-top:2px; }
+.badge { font-size:var(--fs-sm); padding:3px 10px; border-radius:20px; font-weight:600; flex-shrink:0; }
+.badge-ok { background:var(--green-light); color:var(--green); }
+.badge-no { background:#F0F2F5; color:var(--text3); }
+
+/* ── CONSOL CARD ── */
+.consol-card { margin:0 var(--pad); background:linear-gradient(135deg,#185FA5,#1E7FD4);
+  border-radius:var(--radius-lg); padding:.9rem var(--pad);
+  cursor:pointer; display:flex; align-items:center; gap:.85rem; transition:opacity .15s; }
+.consol-card:active { opacity:.85; transform:scale(.98); }
+.consol-icon { width:clamp(40px,9vw,50px); height:clamp(40px,9vw,50px); border-radius:var(--radius-md);
+  background:rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center;
+  flex-shrink:0; font-size:1.3rem; color:#fff; }
+.consol-info .ct { font-size:var(--fs-base); font-weight:600; color:#fff; }
+.consol-info .cs { font-size:var(--fs-sm); color:#B5D4F4; margin-top:2px; }
+
+/* ── PAGE INNER ── */
+.pi { padding:0 var(--pad); }
+.back-btn { display:inline-flex; align-items:center; gap:.4rem;
+  font-size:var(--fs-sm); font-weight:600; color:var(--blue);
+  cursor:pointer; margin-bottom:1.2rem; padding:4px 0; }
+.page-hdr { margin-bottom:1.4rem; }
+.page-hdr h2 { font-size:var(--fs-xl); font-weight:700; color:var(--text); }
+.page-hdr p { font-size:var(--fs-sm); color:var(--text2); margin-top:4px; }
+
+/* ── ORDER BUTTONS ── */
+.order-row { display:grid; grid-template-columns:1fr 1fr; gap:.65rem; margin-bottom:1rem; }
+.order-btn { padding:clamp(10px,2.5vw,14px) 8px; border-radius:var(--radius-md);
+  border:1.5px solid var(--border); background:var(--card);
+  cursor:pointer; text-align:center; transition:all .15s; }
+.order-btn.sel { border-color:var(--blue); background:var(--blue-light); }
+.order-btn i { font-size:1.3rem; display:block; margin-bottom:.4rem; color:var(--text3); }
+.order-btn.sel i { color:var(--blue); }
+.order-btn span { font-size:var(--fs-base); font-weight:600; color:var(--text); display:block; }
+.order-btn small { font-size:var(--fs-sm); color:var(--text3); display:block; margin-top:2px; }
+
+/* ── TOGGLE ── */
+.toggle-row { display:flex; align-items:center; justify-content:space-between;
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:var(--radius-md); padding:.85rem 1rem; margin-bottom:1.4rem; cursor:pointer; }
+.toggle-info .ti-lbl { font-size:var(--fs-base); font-weight:600; color:var(--text); }
+.toggle-info .ti-sub { font-size:var(--fs-sm); color:var(--text2); margin-top:2px; }
+.tswitch { width:44px; height:26px; border-radius:13px; background:var(--border2);
+  position:relative; flex-shrink:0; transition:background .2s; }
+.tswitch.on { background:var(--blue); }
+.tswitch::after { content:''; position:absolute; width:20px; height:20px; border-radius:50%;
+  background:#fff; top:3px; left:3px; transition:left .2s; box-shadow:0 1px 4px rgba(0,0,0,.18); }
+.tswitch.on::after { left:21px; }
+
+/* ── SLIDER ── */
+.num-box { background:var(--card); border:1.5px solid var(--border); border-radius:var(--radius-md);
+  padding:1rem; margin-bottom:1rem; }
+.num-lbl { font-size:var(--fs-sm); color:var(--text2); margin-bottom:.7rem; }
+.num-row { display:flex; align-items:center; gap:.85rem; }
+.num-row input[type=range] { flex:1; height:5px; accent-color:var(--blue); cursor:pointer; }
+.num-val { font-size:1.5rem; font-weight:700; color:var(--blue); min-width:38px; text-align:right; }
+.num-sub { font-size:var(--fs-sm); color:var(--text3); margin-top:.4rem; }
+
+/* ── BUTTONS ── */
+.btn-primary { width:100%; padding:clamp(13px,3vw,17px);
+  background:linear-gradient(135deg,var(--blue),var(--blue-mid));
+  color:#fff; border:none; border-radius:var(--radius-md);
+  font-size:var(--fs-base); font-weight:700; cursor:pointer; margin-bottom:.6rem;
+  display:flex; align-items:center; justify-content:center; gap:.5rem; letter-spacing:.01em; }
+.btn-primary:active { transform:scale(.98); opacity:.9; }
+.btn-ghost { width:100%; padding:clamp(11px,2.5vw,14px);
+  background:transparent; color:var(--text2); border:1.5px solid var(--border);
+  border-radius:var(--radius-md); font-size:var(--fs-base); cursor:pointer; }
+
+/* ── QUIZ TOP BAR ── */
+.quiz-topbar { display:flex; align-items:center; justify-content:space-between;
+  padding:.85rem var(--pad) 0; margin-bottom:.5rem; }
+.quiz-cancel { display:inline-flex; align-items:center; gap:.35rem;
+  font-size:var(--fs-sm); font-weight:600; color:var(--red);
+  cursor:pointer; padding:4px 0; }
+.quiz-title { font-size:var(--fs-sm); font-weight:600; color:var(--text2); }
+
+/* ── QUIZ ── */
+.quiz-top { padding:.5rem var(--pad) 0; }
+.pbar-wrap { height:6px; background:#E2E6EC; border-radius:3px; margin-bottom:.75rem; }
+.pbar-fill { height:6px; background:linear-gradient(90deg,var(--blue),var(--blue-mid));
+  border-radius:3px; transition:width .4s; }
+.q-meta { display:flex; justify-content:space-between; align-items:center; margin-bottom:.9rem; }
+.q-counter { font-size:var(--fs-sm); font-weight:700; color:var(--blue); }
+.q-pill { font-size:var(--fs-sm); padding:4px 10px; border-radius:20px; font-weight:600; }
+.pill-multi{background:#EEEDFE;color:#3C3489}
+.pill-tf   {background:#E1F5EE;color:#085041}
+.pill-fill {background:#FAEEDA;color:#633806}
+
+/* ── BANCO BADGE (examen consolidado) ── */
+.q-bank-badge { font-size:var(--fs-sm); padding:3px 10px; border-radius:20px;
+  font-weight:600; margin-bottom:.6rem; display:inline-block; }
+.qbb1{background:#EEEDFE;color:#534AB7} .qbb2{background:#E1F5EE;color:#0F6E56}
+.qbb3{background:#FAEEDA;color:#BA7517} .qbb4{background:#E6F1FB;color:#185FA5}
+
+/* ── NAV DOTS ── */
+.ndots-wrap { padding:.1rem var(--pad) .75rem; }
+.ndots-lbl { font-size:var(--fs-sm); color:var(--text3); margin-bottom:.5rem; }
+.ndots { display:flex; flex-wrap:wrap; gap:6px; }
+.ndot { width:clamp(26px,7vw,32px); height:clamp(26px,7vw,32px); border-radius:8px;
+  border:none; font-size:clamp(10px,2.5vw,12px); font-weight:700;
+  cursor:pointer; transition:all .15s; background:#F0F2F5; color:var(--text2); }
+.ndot.current { background:var(--blue); color:#fff; box-shadow:0 2px 8px rgba(24,95,165,.35); }
+.ndot.done-ok { background:var(--green-light); color:var(--green-dark); }
+.ndot.done-no { background:var(--red-light); color:var(--red); }
+.ndot.skipped { background:#FFF3CD; color:#856404; }
+.ndot:active { transform:scale(.92); }
+
+/* ── QUESTION CARD ── */
+.q-card { margin:0 var(--pad) .85rem;
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:var(--radius-lg); padding:1.1rem; }
+.q-bank-row { margin-bottom:.65rem; }
+.q-text { font-size:var(--fs-lg); font-weight:600; color:var(--text); line-height:1.55; }
+
+/* ── OPTIONS ── */
+.opts-wrap { padding:0 var(--pad); margin-bottom:.75rem; }
+.opt { display:block; width:100%; text-align:left;
+  padding:clamp(11px,2.8vw,15px) 1rem; margin-bottom:.6rem;
+  background:var(--card); border:1.5px solid var(--border);
+  border-radius:var(--radius-md); cursor:pointer;
+  font-size:var(--fs-base); color:var(--text); line-height:1.45; transition:all .15s; }
+.opt:active:not(:disabled) { transform:scale(.99); background:#F0F4FA; }
+.opt:hover:not(:disabled) { border-color:var(--blue-mid); background:var(--blue-light); }
+.opt.sel-correct  { border-color:var(--green);  background:var(--green-light); color:var(--green-dark); font-weight:600; }
+.opt.sel-wrong    { border-color:var(--red);    background:var(--red-light);   color:var(--red);        font-weight:600; }
+.opt.show-correct { border-color:var(--green);  background:var(--green-light); color:var(--green-dark); font-weight:600; }
+.opt:disabled { cursor:default; }
+
+/* ── FEEDBACK ── */
+.fb-box { margin:0 var(--pad) .75rem; border-radius:var(--radius-md); padding:.85rem 1rem; }
+.fb-ok   { background:var(--green-light);  border:1.5px solid #97C459; }
+.fb-no   { background:var(--red-light);    border:1.5px solid #F09595; }
+.fb-skip { background:var(--amber-light);  border:1.5px solid #E0A030; }
+.fb-title { font-size:var(--fs-base); font-weight:700; margin-bottom:3px; }
+.fb-ok .fb-title   { color:var(--green-dark); }
+.fb-no .fb-title   { color:#791F1F; }
+.fb-skip .fb-title { color:#633806; }
+.fb-hint { font-size:var(--fs-sm); line-height:1.45; }
+.fb-ok .fb-hint   { color:var(--green); }
+.fb-no .fb-hint   { color:var(--red); }
+.fb-skip .fb-hint { color:var(--amber); }
+
+/* ── NAV BUTTONS ROW ── */
+.nav-btns { display:flex; gap:.6rem; margin:0 var(--pad); }
+.btn-prev { flex:0 0 auto; padding:clamp(12px,3vw,16px) 1.1rem;
+  background:var(--card); color:var(--blue); border:1.5px solid var(--blue);
+  border-radius:var(--radius-md); font-size:var(--fs-base); font-weight:700;
+  cursor:pointer; display:flex; align-items:center; gap:.35rem; }
+.btn-prev:active { transform:scale(.97); }
+.btn-next { flex:1; padding:clamp(12px,3vw,16px);
+  background:linear-gradient(135deg,var(--blue),var(--blue-mid));
+  color:#fff; border:none; border-radius:var(--radius-md);
+  font-size:var(--fs-base); font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:.45rem; }
+.btn-next:active { transform:scale(.98); opacity:.9; }
+.btn-finish { flex:1; padding:clamp(12px,3vw,16px);
+  background:linear-gradient(135deg,#27500A,#3B6D11);
+  color:#fff; border:none; border-radius:var(--radius-md);
+  font-size:var(--fs-base); font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:.45rem; }
+.btn-finish:active { transform:scale(.98); opacity:.9; }
+
+/* ── MODAL CANCELAR ── */
+.modal-overlay { display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,.45); z-index:100;
+  align-items:center; justify-content:center; padding:1.5rem; }
+.modal-overlay.open { display:flex; }
+.modal-box { background:var(--card); border-radius:var(--radius-xl);
+  padding:1.5rem; width:100%; max-width:360px; }
+.modal-icon { font-size:2rem; text-align:center; margin-bottom:.75rem; }
+.modal-title { font-size:var(--fs-xl); font-weight:700; color:var(--text);
+  text-align:center; margin-bottom:.5rem; }
+.modal-sub { font-size:var(--fs-sm); color:var(--text2);
+  text-align:center; line-height:1.55; margin-bottom:1.25rem; }
+.modal-btns { display:flex; flex-direction:column; gap:.6rem; }
+.btn-modal-cancel { padding:14px; background:var(--red-light); color:var(--red);
+  border:1.5px solid #F09595; border-radius:var(--radius-md);
+  font-size:var(--fs-base); font-weight:700; cursor:pointer; }
+.btn-modal-stay { padding:14px; background:transparent; color:var(--text2);
+  border:1.5px solid var(--border); border-radius:var(--radius-md);
+  font-size:var(--fs-base); cursor:pointer; }
+
+/* ── RESULT ── */
+.result-hero { background:linear-gradient(135deg,var(--blue-dark),var(--blue));
+  border-radius:0 0 var(--radius-xl) var(--radius-xl);
+  padding:1.5rem var(--pad) 2rem; text-align:center; margin-bottom:1.4rem; }
+.result-hero h2 { font-size:var(--fs-xl); color:#B5D4F4; font-weight:400; margin-bottom:.75rem; }
+.score-ring { width:clamp(90px,22vw,120px); height:clamp(90px,22vw,120px); border-radius:50%;
+  background:rgba(255,255,255,.15); border:3px solid rgba(255,255,255,.4);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  margin:0 auto .75rem; }
+.score-big { font-size:clamp(26px,6vw,36px); font-weight:700; color:#fff; }
+.score-lbl { font-size:var(--fs-sm); color:#B5D4F4; }
+.score-msg { font-size:var(--fs-base); color:#E6F1FB; }
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:.65rem; margin:0 var(--pad) 1.2rem; }
+.stat-c { background:var(--card); border:1.5px solid var(--border);
+  border-radius:var(--radius-md); padding:1rem; text-align:center; }
+.stat-n { font-size:clamp(22px,5vw,30px); font-weight:700; }
+.stat-n.green{color:var(--green)} .stat-n.red{color:var(--red)}
+.stat-n.blue{color:var(--blue)}   .stat-n.amber{color:var(--amber)}
+.stat-l { font-size:var(--fs-sm); color:var(--text2); margin-top:2px; }
+.action-btns { padding:0 var(--pad); display:flex; flex-direction:column; gap:.65rem; }
+.btn-review { padding:clamp(13px,3vw,17px);
+  background:linear-gradient(135deg,var(--purple-dark),var(--purple));
+  color:#fff; border:none; border-radius:var(--radius-md);
+  font-size:var(--fs-base); font-weight:700; cursor:pointer;
+  display:flex; align-items:center; justify-content:center; gap:.5rem; }
+.btn-review:active { transform:scale(.98); opacity:.9; }
+.btn-retry { padding:clamp(12px,2.8vw,15px); background:var(--green-light);
+  color:var(--green-dark); border:1.5px solid #97C459;
+  border-radius:var(--radius-md); font-size:var(--fs-base); font-weight:700; cursor:pointer; }
+.btn-home-r { padding:clamp(12px,2.8vw,15px); background:transparent;
+  color:var(--text2); border:1.5px solid var(--border);
+  border-radius:var(--radius-md); font-size:var(--fs-base); cursor:pointer; }
+
+/* ── REVIEW PAGE ── */
+.rev-hdr { background:linear-gradient(135deg,var(--purple-dark),var(--purple));
+  padding:var(--pad); border-radius:0 0 var(--radius-xl) var(--radius-xl); margin-bottom:1.2rem; }
+.rev-hdr h2 { font-size:var(--fs-xl); font-weight:700; color:#fff; }
+.rev-hdr p  { font-size:var(--fs-sm); color:#CECBF6; margin-top:4px; }
+.rev-item { margin:0 var(--pad) .75rem; background:var(--card);
+  border-radius:var(--radius-lg); border:1.5px solid var(--border); overflow:hidden; }
+.rev-head { padding:.85rem 1rem; cursor:pointer;
+  display:flex; justify-content:space-between; align-items:flex-start; gap:.75rem; }
+.rev-head .rq { font-size:var(--fs-base); color:var(--text); line-height:1.45; flex:1; }
+.rev-bank-pill { font-size:10px; font-weight:700; padding:2px 7px;
+  border-radius:20px; white-space:nowrap; margin-bottom:4px; display:inline-block; }
+.rev-status { width:26px; height:26px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; flex-shrink:0; font-size:.75rem; }
+.rs-ok   { background:var(--green-light); color:var(--green-dark); }
+.rs-no   { background:var(--red-light);   color:var(--red); }
+.rs-skip { background:var(--amber-light); color:var(--amber); }
+.rev-body { padding:0 1rem 1rem; display:none; }
+.rev-body.open { display:block; }
+.rev-opt { padding:.6rem .8rem; border-radius:8px; font-size:var(--fs-sm); margin-top:.4rem; line-height:1.4; }
+.ro-correct { background:var(--green-light); color:var(--green-dark); }
+.ro-wrong   { background:var(--red-light);   color:var(--red); }
+.ro-skip    { background:var(--amber-light);  color:var(--amber); }
+.ro-neutral { background:#F0F2F5; color:var(--text2); }
+.ro-badge { font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px; }
+
+@media (min-width:600px) {
+  .stats-grid { grid-template-columns:repeat(4,1fr); }
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════ HOME ════════════ -->
+<div id="pg-home" class="page active">
+  <div class="hdr">
+    <div class="hdr-title">Estrategia, Gestión y Adquisición en los SI</div>
+    <div class="hdr-sub">Herramienta de repaso &mdash; 23/08/2026</div>
+  </div>
+
+  <div class="slbl">Bancos de preguntas</div>
+
+  <!-- Banco 1 -->
+  <div class="bank-card" id="card-b1" onclick="goSetup(1)">
+    <div class="bank-icon b1">1</div>
+    <div class="bank-info">
+      <div class="bank-name">Grupo 1 &mdash; IE</div>
+      <div class="bank-count" id="lbl-b1">50 preguntas &middot; 3 secciones</div>
+    </div>
+    <span class="badge badge-ok" id="badge-b1">Disponible</span>
+    <i class="fa-solid fa-chevron-right" style="color:var(--text3)"></i>
+  </div>
+
+  <!-- Banco 2 -->
+  <div class="bank-card" id="card-b2" onclick="goSetup(2)">
+    <div class="bank-icon b2">2</div>
+    <div class="bank-info">
+      <div class="bank-name">Grupo 2 &mdash; SISP</div>
+      <div class="bank-count" id="lbl-b2">50 preguntas</div>
+    </div>
+    <span class="badge badge-ok" id="badge-b2">Disponible</span>
+    <i class="fa-solid fa-chevron-right" style="color:var(--text3)"></i>
+  </div>
+
+  <!-- Banco 3 -->
+  <div class="bank-card" id="card-b3" onclick="goSetup(3)">
+    <div class="bank-icon b3">3</div>
+    <div class="bank-info">
+      <div class="bank-name">Grupo 3 &mdash; BSP</div>
+      <div class="bank-count" id="lbl-b3">50 preguntas</div>
+    </div>
+    <span class="badge badge-ok" id="badge-b3">Disponible</span>
+    <i class="fa-solid fa-chevron-right" style="color:var(--text3)"></i>
+  </div>
+
+  <!-- Banco 4 -->
+  <div class="bank-card" id="card-b4" onclick="goSetup(4)">
+    <div class="bank-icon b4">4</div>
+    <div class="bank-info">
+      <div class="bank-name">Grupo 4 &mdash; EA</div>
+      <div class="bank-count" id="lbl-b4">50 preguntas &middot; 3 secciones</div>
+    </div>
+    <span class="badge badge-ok" id="badge-b4">Disponible</span>
+    <i class="fa-solid fa-chevron-right" style="color:var(--text3)"></i>
+  </div>
+
+  <div class="slbl" style="margin-top:1.4rem">Examen consolidado</div>
+  <div class="consol-card" onclick="goConsolSetup()">
+    <div class="consol-icon"><i class="fa-solid fa-layer-group"></i></div>
+    <div class="consol-info">
+      <div class="ct">Examen consolidado</div>
+      <div class="cs" id="consol-desc">Mezcla equitativa de todos los bancos disponibles</div>
+    </div>
+    <i class="fa-solid fa-chevron-right" style="color:#B5D4F4;margin-left:auto"></i>
+  </div>
+</div>
+
+<!-- ════════════ SETUP BANCO INDIVIDUAL ════════════ -->
+<div id="pg-setup" class="page">
+  <div class="pi">
+    <div class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i> Inicio</div>
+    <div class="page-hdr">
+      <h2 id="setup-title">Configurar repaso</h2>
+      <p id="setup-sub">Elige c&oacute;mo quieres repasar las preguntas</p>
+    </div>
+
+    <div class="slbl" style="padding:0;margin-bottom:.65rem">Orden de preguntas</div>
+    <div class="order-row">
+      <div class="order-btn sel" id="ord-seq" onclick="setOrder('seq')">
+        <i class="fa-solid fa-list-ol"></i><span>En orden</span><small>Pregunta 1 a 50</small>
+      </div>
+      <div class="order-btn" id="ord-rnd" onclick="setOrder('rnd')">
+        <i class="fa-solid fa-shuffle"></i><span>Aleatorio</span><small>Mezcladas</small>
+      </div>
+    </div>
+
+    <div class="slbl" style="padding:0;margin-bottom:.65rem;margin-top:1.2rem">Opciones adicionales</div>
+    <div class="toggle-row" onclick="toggleNav()">
+      <div class="toggle-info">
+        <div class="ti-lbl">Barra de navegaci&oacute;n</div>
+        <div class="ti-sub">Saltar libremente entre preguntas</div>
+      </div>
+      <div class="tswitch" id="tog-nav"></div>
+    </div>
+
+    <button class="btn-primary" onclick="startQuiz()">
+      <i class="fa-solid fa-play"></i> Comenzar repaso
+    </button>
+    <button class="btn-ghost" onclick="goHome()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ════════════ SETUP CONSOLIDADO ════════════ -->
+<div id="pg-consol" class="page">
+  <div class="pi">
+    <div class="back-btn" onclick="goHome()"><i class="fa-solid fa-arrow-left"></i> Inicio</div>
+    <div class="page-hdr">
+      <h2>Examen consolidado</h2>
+      <p id="consol-info-text">Selecciona cu&aacute;ntas preguntas en total</p>
+    </div>
+
+    <div class="slbl" style="padding:0;margin-bottom:.65rem">N&uacute;mero de preguntas</div>
+    <div class="num-box">
+      <div class="num-lbl">Arrastra para ajustar la cantidad</div>
+      <div class="num-row">
+        <input type="range" id="exam-slider" min="4" max="200" step="1" value="20" oninput="updSlider()">
+        <span class="num-val" id="slider-val">20</span>
+      </div>
+      <div class="num-sub" id="slider-sub">~5 preguntas por banco (4 bancos disponibles)</div>
+    </div>
+
+    <div class="slbl" style="padding:0;margin-bottom:.65rem">Orden</div>
+    <div class="order-row">
+      <div class="order-btn sel" id="cord-seq" onclick="setCOrder('seq')">
+        <i class="fa-solid fa-list-ol"></i><span>En orden</span><small>Secuencial</small>
+      </div>
+      <div class="order-btn" id="cord-rnd" onclick="setCOrder('rnd')">
+        <i class="fa-solid fa-shuffle"></i><span>Aleatorio</span><small>Mezcladas</small>
+      </div>
+    </div>
+
+    <div class="slbl" style="padding:0;margin-bottom:.65rem;margin-top:1.2rem">Opciones adicionales</div>
+    <div class="toggle-row" onclick="toggleNavConsol()">
+      <div class="toggle-info">
+        <div class="ti-lbl">Barra de navegaci&oacute;n</div>
+        <div class="ti-sub">Saltar libremente entre preguntas</div>
+      </div>
+      <div class="tswitch" id="tog-nav-consol"></div>
+    </div>
+
+    <button class="btn-primary" onclick="startConsol()">
+      <i class="fa-solid fa-play"></i> Iniciar examen
+    </button>
+    <button class="btn-ghost" onclick="goHome()">Cancelar</button>
+  </div>
+</div>
+
+<!-- ════════════ QUIZ ════════════ -->
+<div id="pg-quiz" class="page">
+  <!-- Top bar: título del banco + botón cancelar -->
+  <div class="quiz-topbar">
+    <span class="quiz-title" id="quiz-title-lbl">Banco 4</span>
+    <span class="quiz-cancel" onclick="confirmCancel()">
+      <i class="fa-solid fa-xmark"></i> Cancelar
+    </span>
+  </div>
+
+  <div class="quiz-top">
+    <div class="pbar-wrap"><div class="pbar-fill" id="pbar"></div></div>
+    <div class="q-meta">
+      <span class="q-counter" id="q-counter">1 / 50</span>
+      <span class="q-pill pill-multi" id="q-pill">Selecci&oacute;n m&uacute;ltiple</span>
+    </div>
+  </div>
+
+  <!-- Barra de navegación (dots) -->
+  <div class="ndots-wrap" id="ndots-wrap" style="display:none">
+    <div class="ndots-lbl">Toca cualquier n&uacute;mero para navegar</div>
+    <div class="ndots" id="ndots"></div>
+  </div>
+
+  <!-- Tarjeta de pregunta -->
+  <div class="q-card">
+    <!-- Badge del banco (solo visible en examen consolidado) -->
+    <div class="q-bank-row" id="q-bank-row" style="display:none">
+      <span class="q-bank-badge" id="q-bank-badge"></span>
+    </div>
+    <div class="q-text" id="q-text"></div>
+  </div>
+
+  <div class="opts-wrap" id="opts-wrap"></div>
+  <div class="fb-box" id="fb" style="display:none"></div>
+
+  <div class="nav-btns">
+    <button class="btn-prev" id="btn-prev" onclick="prevQ()" style="display:none">
+      <i class="fa-solid fa-arrow-left"></i> Ant.
+    </button>
+    <button class="btn-next" id="btn-next" onclick="nextQ()">
+      Siguiente <i class="fa-solid fa-arrow-right"></i>
+    </button>
+    <button class="btn-finish" id="btn-finish" onclick="finishQuiz()" style="display:none">
+      <i class="fa-solid fa-flag-checkered"></i> Terminar y enviar
+    </button>
+  </div>
+</div>
+
+<!-- ════════════ MODAL CANCELAR ════════════ -->
+<div class="modal-overlay" id="modal-cancel">
+  <div class="modal-box">
+    <div class="modal-icon">⚠️</div>
+    <div class="modal-title">¿Cancelar examen?</div>
+    <div class="modal-sub">
+      Si cancelas ahora perder&aacute;s tu progreso y las respuestas no se guardar&aacute;n.
+    </div>
+    <div class="modal-btns">
+      <button class="btn-modal-cancel" onclick="doCancel()">
+        <i class="fa-solid fa-xmark"></i> S&iacute;, cancelar y salir
+      </button>
+      <button class="btn-modal-stay" onclick="closeModal()">
+        Continuar el examen
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ RESULTADOS ════════════ -->
+<div id="pg-result" class="page">
+  <div class="result-hero">
+    <h2>Resultados</h2>
+    <div class="score-ring">
+      <span class="score-big" id="r-pct">0%</span>
+      <span class="score-lbl">aciertos</span>
+    </div>
+    <div class="score-msg" id="r-msg"></div>
+  </div>
+  <div class="stats-grid">
+    <div class="stat-c"><div class="stat-n green" id="r-ok">0</div><div class="stat-l">Correctas</div></div>
+    <div class="stat-c"><div class="stat-n red"   id="r-bad">0</div><div class="stat-l">Incorrectas</div></div>
+    <div class="stat-c"><div class="stat-n amber" id="r-skip">0</div><div class="stat-l">Sin responder</div></div>
+    <div class="stat-c"><div class="stat-n blue"  id="r-total">0</div><div class="stat-l">Total</div></div>
+  </div>
+  <div class="action-btns">
+    <button class="btn-review" onclick="goReview()">
+      <i class="fa-solid fa-eye"></i> Revisar todas las preguntas
+    </button>
+    <button class="btn-retry" id="btn-retry" onclick="retryWrong()" style="display:none">
+      Repasar incorrectas y sin responder
+    </button>
+    <button class="btn-home-r" onclick="goHome()">&#8592; Volver al inicio</button>
+  </div>
+</div>
+
+<!-- ════════════ REVISIÓN ════════════ -->
+<div id="pg-review" class="page">
+  <div class="rev-hdr">
+    <h2>Revisi&oacute;n completa</h2>
+    <p id="rev-sub">Toca cada pregunta para ver el detalle</p>
+  </div>
+  <div id="rev-list"></div>
+  <div class="pi" style="margin-top:.4rem">
+    <button class="btn-home-r" style="width:100%" onclick="backToResult()">
+      &#8592; Volver a resultados
+    </button>
+  </div>
+</div>
+
+<!-- ════════════ JAVASCRIPT ════════════ -->
+<script>
+
+/* ═══════════════════════════════════════════
+   BANCOS DE PREGUNTAS
+   Cada pregunta tiene:
+     q    : texto de la pregunta (string)
+     opts : array de opciones (strings)
+     ans  : índice (0-based) de la opción correcta
+     sec  : "multi" | "tf" | "fill"
+     bank : 1 | 2 | 3 | 4  (se asigna automáticamente al cargar)
+
+   Para agregar preguntas:
+     - Pega los objetos dentro del array correspondiente (BANK1, BANK2, BANK3, BANK4)
+     - Si el banco no tiene preguntas aún, déjalo como array vacío []
+═══════════════════════════════════════════ */
+
+const BANK1 = [
+  /* ── Pega aquí las preguntas del Banco 1 ── */
+];
+
+const BANK2 = [
+  {
+    q: "¿Qué significa SISP dentro del campo de los Sistemas de Información?",
+    opts: [
+      "Un sistema operativo especializado únicamente en controlar servidores, redes, bases de datos y dispositivos tecnológicos de una organización.",
+      "Un proceso administrativo enfocado solo en comprar computadoras modernas sin considerar los objetivos estratégicos de la empresa.",
+      "Un Plan Estratégico de Sistemas de Información que permite alinear la tecnología con los objetivos del negocio.",
+      "Una metodología exclusiva para programadores que desean desarrollar aplicaciones sin intervención de la alta dirección."
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es el propósito principal del SISP en una organización?",
+    opts: [
+      "Garantizar que los recursos tecnológicos estén alineados con las metas organizacionales y contribuyan al logro de ventajas competitivas.",
+      "Reemplazar completamente a los trabajadores de una empresa mediante sistemas automáticos y herramientas digitales avanzadas.",
+      "Comprar la mayor cantidad posible de software sin analizar previamente las necesidades reales del negocio.",
+      "Evitar que la alta dirección participe en las decisiones relacionadas con tecnología y sistemas de información."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué diferencia al SISP de la planificación tecnológica operativa?",
+    opts: [
+      "El SISP se concentra solamente en resolver problemas técnicos diarios, mientras que la planificación operativa se enfoca en la estrategia empresarial.",
+      "El SISP trabaja a nivel estratégico, con visión de mediano y largo plazo, mientras la planificación operativa atiende la gestión diaria de TI.",
+      "El SISP no requiere análisis del negocio, porque únicamente se basa en adquirir tecnología de última generación.",
+      "La planificación tecnológica operativa siempre involucra a la alta dirección, mientras que el SISP se realiza sin participación gerencial."
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué horizonte de tiempo suele considerar el SISP?",
+    opts: [
+      "Un periodo muy corto de una o dos semanas para resolver problemas inmediatos de infraestructura tecnológica.",
+      "Un periodo aproximado de tres a cinco años, considerando una visión estratégica de mediano y largo plazo.",
+      "Un periodo de un solo día, porque la tecnología cambia demasiado rápido para planificar con anticipación.",
+      "Un periodo indefinido sin fechas, responsables ni seguimiento formal dentro de la organización."
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué pregunta fundamental responde el SISP?",
+    opts: [
+      "¿Qué sistemas de información necesitamos para alcanzar los objetivos estratégicos de la organización?",
+      "¿Qué marca de computadoras es más económica para comprar sin realizar ningún análisis institucional?",
+      "¿Cómo eliminar todas las áreas de negocio para que solo funcione el departamento de tecnología?",
+      "¿Qué herramientas digitales pueden utilizarse sin tomar en cuenta la misión ni la visión empresarial?"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Por qué el SISP es importante en el contexto actual?",
+    opts: [
+      "Porque las organizaciones dependen cada vez más de la tecnología y necesitan alinear sus capacidades digitales con sus objetivos estratégicos.",
+      "Porque permite dejar de lado la planificación empresarial y concentrarse únicamente en los dispositivos tecnológicos disponibles.",
+      "Porque obliga a todas las empresas a usar los mismos programas, sin importar su tamaño, sector o necesidades.",
+      "Porque elimina la necesidad de evaluar riesgos, costos, beneficios y prioridades tecnológicas dentro de la organización."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué busca la alineación estratégica dentro del SISP?",
+    opts: [
+      "Asegurar que los sistemas de información respondan directamente a las prioridades, metas y necesidades del negocio.",
+      "Separar completamente las decisiones tecnológicas de las decisiones administrativas y comerciales de la organización.",
+      "Comprar sistemas de información sin consultar a los usuarios, directivos o responsables de los procesos internos.",
+      "Mantener las tecnologías antiguas aunque ya no aporten valor ni respondan a los objetivos organizacionales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué significa optimizar recursos en el contexto del SISP?",
+    opts: [
+      "Identificar y priorizar las iniciativas tecnológicas con mayor impacto para utilizar eficientemente presupuesto, personal y tiempo.",
+      "Reducir completamente la inversión tecnológica, aunque esto afecte negativamente el funcionamiento de la organización.",
+      "Asignar todos los recursos únicamente al área de infraestructura, sin considerar aplicaciones, datos o procesos.",
+      "Implementar todos los proyectos al mismo tiempo sin evaluar costos, beneficios, riesgos ni prioridades estratégicas."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cómo puede el SISP generar ventaja competitiva?",
+    opts: [
+      "Detectando oportunidades donde la tecnología mejore procesos, productos, servicios o la experiencia del cliente.",
+      "Evitando el uso de tecnologías modernas para que la organización conserve métodos tradicionales de trabajo.",
+      "Copiando exactamente los sistemas de información de los competidores sin adaptarlos al contexto empresarial.",
+      "Limitando la innovación tecnológica para reducir cualquier cambio dentro de la estructura organizacional."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué busca la reducción de riesgos dentro del SISP?",
+    opts: [
+      "Anticipar vulnerabilidades tecnológicas, brechas de capacidad y dependencias críticas antes de que afecten la operación.",
+      "Ignorar los posibles problemas tecnológicos hasta que se conviertan en fallas graves dentro de la organización.",
+      "Eliminar toda inversión tecnológica para evitar cualquier riesgo relacionado con sistemas de información.",
+      "Delegar todos los riesgos exclusivamente al área técnica, sin intervención de la dirección ni de los usuarios."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cómo contribuye el SISP a la comunicación organizacional?",
+    opts: [
+      "Facilita un lenguaje común entre líderes de negocio y responsables de TI para definir requerimientos y soluciones.",
+      "Impide que las áreas de negocio participen en la planificación tecnológica de la organización.",
+      "Promueve que cada departamento trabaje de forma aislada sin compartir información ni objetivos comunes.",
+      "Reduce la comunicación entre usuarios y técnicos para acelerar la compra de herramientas digitales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué comprende el análisis del entorno estratégico en el SISP?",
+    opts: [
+      "El estudio de factores internos y externos como competencia, mercado, regulaciones y capacidades tecnológicas actuales.",
+      "La revisión exclusiva del número de computadoras disponibles en cada oficina de la organización.",
+      "La elaboración de presupuestos sin analizar las condiciones del mercado ni las necesidades institucionales.",
+      "La selección de programas informáticos basada únicamente en recomendaciones informales de otros usuarios."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué herramientas suelen utilizarse en el análisis del entorno estratégico?",
+    opts: [
+      "Análisis FODA, modelo de las Cinco Fuerzas de Porter y análisis PESTEL.",
+      "Únicamente hojas de cálculo básicas sin ningún criterio estratégico o metodológico.",
+      "Aplicaciones de mensajería instantánea para decidir rápidamente qué sistemas comprar.",
+      "Listados de precios de computadoras sin relación con procesos, objetivos o competencias organizacionales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué permite identificar la fase de sistemas críticos?",
+    opts: [
+      "Los sistemas de información necesarios para operar de manera óptima, eficiente y competitiva dentro de la organización.",
+      "Los empleados que deben ser reemplazados inmediatamente por herramientas tecnológicas automáticas.",
+      "Los sistemas que deben eliminarse sin evaluar su importancia para los procesos institucionales.",
+      "Las tecnologías más costosas del mercado, aunque no respondan a necesidades reales de la empresa."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Por qué es necesaria la priorización de iniciativas en el SISP?",
+    opts: [
+      "Porque no todas las necesidades tecnológicas pueden abordarse simultáneamente debido a limitaciones de recursos y tiempo.",
+      "Porque todas las iniciativas tecnológicas deben ejecutarse al mismo tiempo para demostrar innovación inmediata.",
+      "Porque la organización debe seleccionar proyectos al azar sin considerar impacto, costo o viabilidad técnica.",
+      "Porque la priorización permite ignorar los proyectos estratégicos y atender únicamente solicitudes menores."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué criterios se consideran al priorizar iniciativas tecnológicas?",
+    opts: [
+      "Impacto estratégico, viabilidad técnica, costo, tiempo de implementación y beneficios esperados para la organización.",
+      "Popularidad del software, apariencia visual del sistema y preferencias personales de algunos trabajadores.",
+      "Cantidad de publicidad que tenga una herramienta tecnológica en redes sociales o páginas web.",
+      "Precio más alto del mercado, sin analizar utilidad, riesgos, compatibilidad o sostenibilidad institucional."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué es el portafolio de proyectos TI dentro del SISP?",
+    opts: [
+      "Una hoja de ruta que detalla proyectos tecnológicos, responsables, plazos, recursos requeridos y métricas de éxito.",
+      "Un listado informal de ideas tecnológicas que no necesita responsables, presupuesto ni seguimiento.",
+      "Un documento decorativo que se elabora solo para cumplir requisitos académicos o administrativos.",
+      "Una recopilación de equipos informáticos antiguos sin relación con la planificación estratégica del negocio."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Por qué el SISP requiere mecanismos de gobernanza y seguimiento?",
+    opts: [
+      "Porque necesita estructuras que garanticen implementación, monitoreo y actualización periódica del plan tecnológico.",
+      "Porque una vez redactado el plan ya no es necesario revisarlo ni ajustarlo a nuevos cambios.",
+      "Porque la gobernanza permite eliminar la participación de directivos, usuarios y responsables de TI.",
+      "Porque el seguimiento solo sirve para controlar empleados, no para mejorar la planificación tecnológica."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué característica tiene el SISP como proceso organizacional?",
+    opts: [
+      "Es un proceso continuo de reflexión, análisis y actualización que acompaña la evolución del negocio.",
+      "Es un documento estático que se redacta una vez y nunca debe modificarse.",
+      "Es una actividad improvisada que no requiere metodología, responsables ni objetivos claros.",
+      "Es un procedimiento exclusivamente técnico que no guarda relación con la estrategia empresarial."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué metodología fue desarrollada por IBM en la década de 1970?",
+    opts: [
+      "Business Systems Planning, conocida como BSP, orientada a relacionar procesos de negocio con datos y sistemas.",
+      "Critical Success Factors, enfocada únicamente en redes sociales y comunicación digital empresarial.",
+      "Modelo de Madurez de Ward y Peppard, creado para administrar exclusivamente hardware físico.",
+      "Information Systems Strategic Planning, diseñado únicamente para pequeñas empresas sin planificación formal."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿En qué se centra la metodología BSP?",
+    opts: [
+      "En identificar procesos de negocio y relacionarlos con los datos y sistemas necesarios para soportarlos.",
+      "En comprar tecnología moderna sin realizar análisis de procesos, información o necesidades organizacionales.",
+      "En reemplazar toda la planificación empresarial por decisiones técnicas tomadas por proveedores externos.",
+      "En eliminar los sistemas existentes sin evaluar su utilidad o su relación con los procesos internos."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Quién propuso la metodología de Factores Críticos de Éxito?",
+    opts: [
+      "John Rockart, quien planteó identificar los factores esenciales que determinan el éxito de la organización.",
+      "IBM Corporation, como una metodología dedicada exclusivamente al diseño de computadoras empresariales.",
+      "Ward y Peppard, como una técnica centrada únicamente en evaluar el costo del hardware.",
+      "Auerbach Publications, como una herramienta para seleccionar proveedores de internet corporativo."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es la utilidad de la metodología CSF?",
+    opts: [
+      "Identificar los factores críticos de éxito y vincularlos con sistemas de información que los apoyen estratégicamente.",
+      "Definir únicamente los colores, nombres y diseños visuales de las aplicaciones empresariales.",
+      "Organizar reuniones técnicas sin relación con los objetivos principales de la alta dirección.",
+      "Comprar programas informáticos populares sin analizar si contribuyen al éxito organizacional."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué caracteriza al enfoque ISSP?",
+    opts: [
+      "Combina planificación estratégica empresarial con gestión de TI e incorpora marcos como COBIT, ITIL y TOGAF.",
+      "Se limita a instalar equipos tecnológicos sin analizar procesos, gobierno de TI o estrategia institucional.",
+      "Propone eliminar toda metodología formal para que la planificación tecnológica sea completamente improvisada.",
+      "Se enfoca solo en reparar computadoras dañadas y resolver problemas técnicos diarios."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué marcos de referencia puede incorporar el ISSP?",
+    opts: [
+      "COBIT, ITIL y TOGAF, porque ayudan a estructurar la gestión, gobernanza y arquitectura tecnológica.",
+      "Únicamente programas de edición de texto, hojas de cálculo y presentaciones académicas.",
+      "Redes sociales, plataformas de entretenimiento y herramientas de comunicación personal.",
+      "Manuales de usuario básicos que no se relacionan con gobernanza ni planificación estratégica."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué evalúa el Modelo de Madurez de Ward y Peppard?",
+    opts: [
+      "El nivel de madurez de la planificación de sistemas de información, desde una etapa reactiva hasta una estratégica.",
+      "La cantidad exacta de computadoras disponibles en cada área física de la empresa.",
+      "El nivel de satisfacción estética que tienen los usuarios con los colores del sistema.",
+      "La rapidez con que una organización puede comprar tecnología sin análisis previo."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué significa que una organización tenga una planificación reactiva?",
+    opts: [
+      "Que responde a los problemas tecnológicos solo cuando aparecen, sin anticipación ni visión estratégica suficiente.",
+      "Que planifica con mucha anticipación todos los proyectos tecnológicos de acuerdo con objetivos claros.",
+      "Que posee una gobernanza madura, estable y completamente integrada con la estrategia empresarial.",
+      "Que actualiza constantemente su portafolio tecnológico según cambios del mercado y del negocio."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué beneficio genera una correcta implementación del SISP?",
+    opts: [
+      "Mayor coherencia entre las inversiones tecnológicas y los objetivos organizacionales establecidos por la empresa.",
+      "Aumento de proyectos tecnológicos fallidos por falta de control, seguimiento y planificación formal.",
+      "Separación total entre la estrategia del negocio y las decisiones relacionadas con tecnología.",
+      "Uso desordenado de recursos tecnológicos sin prioridades, responsables ni métricas de éxito."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cómo ayuda el SISP a disminuir proyectos tecnológicos fallidos?",
+    opts: [
+      "Permite analizar necesidades, priorizar iniciativas, asignar recursos y dar seguimiento a los proyectos seleccionados.",
+      "Obliga a ejecutar todos los proyectos sin análisis para demostrar rapidez en la transformación digital.",
+      "Evita que los usuarios participen en la identificación de requerimientos y necesidades tecnológicas.",
+      "Promueve decisiones improvisadas basadas únicamente en opiniones personales de los directivos."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué efecto tiene el SISP en la capacidad de respuesta organizacional?",
+    opts: [
+      "Aumenta la capacidad de responder ante cambios del entorno competitivo mediante una planificación tecnológica flexible.",
+      "Reduce la capacidad de adaptación porque impide revisar o modificar los planes tecnológicos.",
+      "Hace que la organización dependa exclusivamente de tecnologías antiguas y procesos manuales.",
+      "Elimina la posibilidad de innovar en productos, servicios o experiencia del cliente."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué relación existe entre el SISP y la cultura de gobernanza tecnológica?",
+    opts: [
+      "El SISP fortalece la planificación, el control, la evaluación y la responsabilidad en las decisiones de TI.",
+      "El SISP elimina la necesidad de gobernanza porque todos los proyectos se ejecutan automáticamente.",
+      "El SISP reemplaza la dirección empresarial por decisiones informales tomadas por cualquier usuario.",
+      "El SISP impide controlar los proyectos tecnológicos porque se basa en improvisación permanente."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué beneficio intangible puede producir el SISP?",
+    opts: [
+      "Incremento de la confianza de los stakeholders en la gestión tecnológica de la organización.",
+      "Eliminación completa de cualquier necesidad de comunicación entre áreas de negocio y TI.",
+      "Reducción del interés de la alta dirección en los proyectos tecnológicos estratégicos.",
+      "Desconexión entre la tecnología implementada y las necesidades reales de la organización."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué son los stakeholders en el contexto del SISP?",
+    opts: [
+      "Personas o grupos interesados en la gestión tecnológica, como directivos, usuarios, clientes, proveedores o inversionistas.",
+      "Únicamente los programadores encargados de escribir código dentro del departamento de sistemas.",
+      "Solamente los proveedores externos que venden computadoras, servidores o licencias de software.",
+      "Personas que no tienen ningún interés ni influencia en los resultados tecnológicos de la organización."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es uno de los principales desafíos en la implementación del SISP?",
+    opts: [
+      "La resistencia al cambio por parte de colaboradores o mandos medios ante nuevas tecnologías o responsabilidades.",
+      "La existencia de demasiada alineación entre tecnología y estrategia organizacional.",
+      "La facilidad absoluta para implementar tecnología sin costos, riesgos o necesidades de capacitación.",
+      "La ausencia total de cambios tecnológicos en el entorno empresarial contemporáneo."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Por qué la resistencia al cambio puede afectar el SISP?",
+    opts: [
+      "Porque los colaboradores pueden rechazar nuevas tecnologías, procesos o responsabilidades necesarias para ejecutar el plan.",
+      "Porque garantiza que todos los trabajadores acepten inmediatamente cualquier transformación digital propuesta.",
+      "Porque permite implementar el plan estratégico de tecnología sin capacitación ni comunicación interna.",
+      "Porque reduce la necesidad de liderazgo, acompañamiento y gestión organizacional durante el cambio."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Por qué es importante el compromiso directivo en el SISP?",
+    opts: [
+      "Porque sin respaldo de la alta dirección, los planes estratégicos de TI pueden quedarse solo en documentos.",
+      "Porque la alta dirección debe evitar participar en cualquier decisión relacionada con sistemas de información.",
+      "Porque los técnicos pueden decidir solos toda la estrategia empresarial sin consultar a los directivos.",
+      "Porque la planificación tecnológica no necesita apoyo institucional, presupuesto ni autoridad organizacional."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cómo afecta la rápida obsolescencia tecnológica al SISP?",
+    opts: [
+      "Puede volver desactualizados los planes antes de implementarlos, por lo que exige revisión y actualización constante.",
+      "Garantiza que cualquier tecnología comprada se mantenga útil y competitiva durante décadas sin cambios.",
+      "Elimina la necesidad de planificar, porque todas las tecnologías funcionan igual sin importar el tiempo.",
+      "Impide que las organizaciones realicen seguimiento a sus proyectos tecnológicos estratégicos."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué implica la brecha de habilidades en el SISP?",
+    opts: [
+      "La falta de personal con competencias suficientes para planificar, implementar y gestionar sistemas estratégicos eficazmente.",
+      "La existencia de demasiados trabajadores capacitados en planificación estratégica y gobierno de TI.",
+      "La facilidad de implementar sistemas complejos sin conocimientos técnicos, estratégicos ni administrativos.",
+      "La ausencia de necesidad de formación profesional para desarrollar planes tecnológicos organizacionales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué puede ocurrir si una organización no cuenta con personal capacitado para SISP?",
+    opts: [
+      "Puede elaborar planes superficiales, poco realistas o desconectados de las verdaderas necesidades organizacionales.",
+      "Puede garantizar automáticamente una planificación tecnológica madura, eficiente y completamente estratégica.",
+      "Puede implementar todos los sistemas sin errores, costos adicionales ni resistencia institucional.",
+      "Puede evitar por completo la necesidad de metodologías, seguimiento, evaluación y gobernanza tecnológica."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Por qué el SISP no debe entenderse como un documento estático?",
+    opts: [
+      "Porque debe actualizarse continuamente según los cambios del negocio, la tecnología y el entorno competitivo.",
+      "Porque una vez redactado no necesita revisión, seguimiento, ajustes ni participación directiva.",
+      "Porque su único valor está en cumplir formalidades académicas o administrativas sin aplicación real.",
+      "Porque debe permanecer intacto aunque cambien las necesidades del mercado y de la organización."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+    {
+    q: "¿Qué relación existe entre misión, visión y SISP?",
+    opts: [
+      "El SISP vincula el portafolio de sistemas de información con la misión, visión y objetivos corporativos.",
+      "El SISP evita considerar la misión y visión porque solo se ocupa de comprar tecnología.",
+      "La misión y visión reemplazan todos los sistemas de información dentro de una organización moderna.",
+      "El SISP funciona mejor cuando está completamente separado de los objetivos corporativos institucionales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué significa priorizar el desarrollo o adquisición de sistemas?",
+    opts: [
+      "Decidir qué sistemas se deben desarrollar o comprar primero según impacto, viabilidad, costo y necesidad estratégica.",
+      "Comprar todos los sistemas disponibles en el mercado sin establecer ningún orden ni criterio de importancia.",
+      "Seleccionar las herramientas digitales únicamente por su apariencia visual o por recomendaciones informales.",
+      "Rechazar cualquier nuevo sistema aunque sea necesario para cumplir los objetivos organizacionales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué papel cumple la alta dirección dentro del SISP?",
+    opts: [
+      "Participa en la toma de decisiones tecnológicas para asegurar que la planificación responda a objetivos estratégicos.",
+      "Se mantiene completamente alejada del proceso porque el SISP corresponde solo al personal técnico.",
+      "Autoriza compras tecnológicas sin revisar prioridades, riesgos, presupuesto ni alineación organizacional.",
+      "Impide que los sistemas de información se relacionen con la estrategia global de la organización."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué problema puede generar una inversión tecnológica desconectada de la realidad organizacional?",
+    opts: [
+      "Puede desperdiciar recursos en sistemas que no aportan valor ni resuelven necesidades estratégicas reales.",
+      "Puede garantizar automáticamente ventajas competitivas sostenibles aunque no exista planificación.",
+      "Puede fortalecer la gobernanza tecnológica sin necesidad de seguimiento ni evaluación.",
+      "Puede mejorar todos los procesos internos aunque no exista relación con los objetivos empresariales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué se entiende por ventaja competitiva sostenible en el contexto del SISP?",
+    opts: [
+      "Una capacidad organizacional apoyada por tecnología que permite diferenciarse y mantenerse competitiva en el tiempo.",
+      "Una mejora temporal basada únicamente en comprar equipos costosos sin integrarlos al negocio.",
+      "Un resultado accidental que aparece sin planificación, análisis estratégico ni participación de la dirección.",
+      "Una estrategia que consiste en copiar a los competidores sin adaptar los sistemas a la organización."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué relación tiene el SISP con la transformación digital?",
+    opts: [
+      "El SISP orienta la transformación digital para que las tecnologías implementadas respondan a prioridades estratégicas.",
+      "El SISP impide la transformación digital porque mantiene a la organización usando procesos antiguos.",
+      "La transformación digital elimina la necesidad de planificar sistemas de información a mediano y largo plazo.",
+      "El SISP consiste solamente en digitalizar documentos sin cambiar procesos, decisiones o capacidades organizacionales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué sucede cuando el SISP facilita un lenguaje común entre negocio y TI?",
+    opts: [
+      "Se mejora la colaboración para definir requerimientos, comprender necesidades y proponer soluciones tecnológicas adecuadas.",
+      "Se evita que los líderes del negocio participen en decisiones relacionadas con sistemas de información.",
+      "Se genera mayor confusión porque cada área trabaja con objetivos completamente diferentes.",
+      "Se reduce la posibilidad de que los sistemas tecnológicos apoyen los procesos organizacionales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál de las siguientes afirmaciones describe mejor el valor del SISP?",
+    opts: [
+      "Su valor radica en vincular coherentemente las decisiones tecnológicas con la estrategia global de la organización.",
+      "Su valor consiste únicamente en producir documentos largos sin aplicación práctica dentro de la empresa.",
+      "Su valor depende de comprar tecnología costosa aunque no exista alineación estratégica ni gobernanza.",
+      "Su valor se limita a resolver fallas técnicas menores de computadoras, impresoras o redes locales."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué exige una correcta implementación del SISP?",
+    opts: [
+      "Compromiso directivo, metodologías adecuadas, capacidades organizacionales y una cultura madura de gobernanza de TI.",
+      "Ausencia de liderazgo, falta de seguimiento, poca comunicación y decisiones tecnológicas improvisadas.",
+      "Exclusión de los usuarios y directivos para que solo el área técnica tome todas las decisiones.",
+      "Implementación rápida de sistemas sin análisis estratégico, presupuesto, responsables ni métricas de éxito."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál sería una conclusión adecuada sobre el SISP?",
+    opts: [
+      "El SISP es una disciplina esencial porque permite planificar estratégicamente los sistemas de información y apoyar la competitividad organizacional.",
+      "El SISP es innecesario porque las organizaciones modernas pueden funcionar sin planificación tecnológica ni alineación estratégica.",
+      "El SISP solo sirve para empresas pequeñas que no tienen procesos complejos ni necesidades de transformación digital.",
+      "El SISP debe aplicarse una sola vez y después permanecer igual aunque cambien la tecnología y el negocio."
+    ],
+    ans: 0,
+    sec: "multi"
+  }
+
+];
+
+const BANK3 = [
+  {
+    q: "¿Qué significa BSP?",
+    opts: [
+      "Business Software Program",
+      "Business Systems Planning",
+      "Basic System Process",
+      "Business Strategic Process"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es el objetivo principal de BSP?",
+    opts: [
+      "Comprar software moderno",
+      "Reducir personal",
+      "Alinear los sistemas de información con la estrategia del negocio",
+      "Automatizar todas las tareas"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "BSP conecta principalmente:",
+    opts: [
+      "Clientes y proveedores",
+      "Estrategia, información y sistemas",
+      "Hardware y software",
+      "Redes y servidores"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "BSP propone comenzar preguntando:",
+    opts: [
+      "¿Qué software compramos?",
+      "¿Qué tecnología está de moda?",
+      "¿Qué necesita lograr el negocio?",
+      "¿Cuánto presupuesto existe?"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "Un problema que BSP ayuda a resolver es:",
+    opts: [
+      "Exceso de empleados",
+      "Datos fragmentados",
+      "Falta de edificios",
+      "Problemas legales"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "Según BSP, muchos proyectos tecnológicos fracasan porque:",
+    opts: [
+      "Son muy baratos",
+      "Se diseñan aislados de los procesos del negocio",
+      "Usan internet",
+      "Son muy rápidos"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Quién desarrolló BSP?",
+    opts: [
+      "Microsoft",
+      "Oracle",
+      "IBM",
+      "Google"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "BSP surgió aproximadamente entre:",
+    opts: [
+      "1960–1970",
+      "1980–1990",
+      "1990–2000",
+      "2010–2020"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "BSP es considerado un antecedente de:",
+    opts: [
+      "Programación orientada a objetos",
+      "Arquitectura empresarial",
+      "Redes sociales",
+      "Big Data"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es un principio fundamental de BSP?",
+    opts: [
+      "Comprar tecnología rápidamente",
+      "Alineación estratégica",
+      "Reducir costos laborales",
+      "Cambiar sistemas cada año"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "La orientación a procesos significa que:",
+    opts: [
+      "Se estudian las computadoras",
+      "Se analiza cómo fluye el trabajo",
+      "Solo importa el software",
+      "Se eliminan los usuarios"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "En BSP los datos son considerados:",
+    opts: [
+      "Gastos innecesarios",
+      "Archivos temporales",
+      "Activos organizacionales",
+      "Documentos opcionales"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "La planificación por prioridad implica:",
+    opts: [
+      "Hacer todo al mismo tiempo",
+      "Implementar proyectos según importancia",
+      "Comprar primero el software más caro",
+      "Eliminar proyectos pequeños"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "La participación directiva es importante porque:",
+    opts: [
+      "BSP requiere decisiones de negocio y tecnología",
+      "Los directivos programan sistemas",
+      "Los directivos administran servidores",
+      "Los directivos diseñan bases de datos"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "La visión integrada busca evitar:",
+    opts: [
+      "Equipos modernos",
+      "Sistemas conectados",
+      "Islas de información",
+      "Bases de datos"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué aparece primero en el modelo conceptual BSP?",
+    opts: [
+      "Sistemas",
+      "Datos",
+      "Objetivos del negocio",
+      "Aplicaciones"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "Después de los objetivos del negocio vienen:",
+    opts: [
+      "Procesos",
+      "Aplicaciones",
+      "Usuarios",
+      "Servidores"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "El último elemento del modelo conceptual es:",
+    opts: [
+      "Datos",
+      "Sistemas",
+      "Procesos",
+      "Plan TI"
+    ],
+    ans: 3,
+    sec: "multi"
+  },
+  {
+    q: "El valor de un sistema depende de:",
+    opts: [
+      "Su precio",
+      "Su marca",
+      "Los procesos y datos que soporta",
+      "Su antigüedad"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es un componente clave de BSP?",
+    opts: [
+      "Redes sociales",
+      "Objetivos del negocio",
+      "Publicidad",
+      "Ventas en línea"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué incluye la capa de datos e información?",
+    opts: [
+      "Entidades y reglas de negocio",
+      "Edificios",
+      "Computadoras portátiles",
+      "Licencias de software"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es la primera fase de BSP?",
+    opts: [
+      "Analizar datos",
+      "Priorizar proyectos",
+      "Preparar el estudio",
+      "Diseñar sistemas"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es la segunda fase?",
+    opts: [
+      "Analizar el negocio",
+      "Arquitectura",
+      "Roadmap",
+      "Capacitación"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "La tercera fase corresponde a:",
+    opts: [
+      "Seguridad",
+      "Análisis de datos",
+      "Compras",
+      "Mantenimiento"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "La cuarta fase consiste en:",
+    opts: [
+      "Analizar procesos",
+      "Diseñar la arquitectura de sistemas",
+      "Contratar personal",
+      "Comprar servidores"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "La quinta fase consiste en:",
+    opts: [
+      "Capacitar usuarios",
+      "Priorizar proyectos y recursos",
+      "Auditar sistemas",
+      "Eliminar procesos"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué se define en la fase de preparación?",
+    opts: [
+      "Alcance del estudio",
+      "Programación del sistema",
+      "Infraestructura física",
+      "Publicidad"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es el entregable de la fase 1?",
+    opts: [
+      "Software terminado",
+      "Plan de trabajo BSP",
+      "Base de datos",
+      "Manual técnico"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "En la fase 2 se analizan:",
+    opts: [
+      "Objetivos y procesos",
+      "Computadoras",
+      "Redes",
+      "Aplicaciones"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "Los procesos clave son:",
+    opts: [
+      "Actividades que generan valor",
+      "Actividades opcionales",
+      "Actividades recreativas",
+      "Actividades externas"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "En la fase 3 se identifican:",
+    opts: [
+      "Entidades de datos",
+      "Servidores físicos",
+      "Impresoras",
+      "Licencias"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál NO es un aspecto de calidad de datos?",
+    opts: [
+      "Exactitud",
+      "Consistencia",
+      "Actualización",
+      "Popularidad"
+    ],
+    ans: 3,
+    sec: "multi"
+  },
+  {
+    q: "El gobierno de datos incluye:",
+    opts: [
+      "Seguridad y reglas de uso",
+      "Publicidad",
+      "Marketing",
+      "Ventas"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "En la fase 4 se diseñan:",
+    opts: [
+      "Procesos de negocio",
+      "Sistemas e integraciones",
+      "Contratos laborales",
+      "Campañas publicitarias"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "Las aplicaciones operativas soportan:",
+    opts: [
+      "Procesos diarios",
+      "Redes sociales",
+      "Eventos corporativos",
+      "Recursos humanos exclusivamente"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "Las integraciones permiten:",
+    opts: [
+      "Conectar sistemas y bases de datos",
+      "Reducir empleados",
+      "Eliminar procesos",
+      "Comprar software"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "La información gerencial incluye:",
+    opts: [
+      "Reportes e indicadores",
+      "Contratos legales",
+      "Manuales de usuario",
+      "Publicidad"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "La seguridad y gobierno incluyen:",
+    opts: [
+      "Roles y auditorías",
+      "Ventas",
+      "Marketing",
+      "Diseño gráfico"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "En la matriz procesos-datos, la letra C significa:",
+    opts: [
+      "Consulta",
+      "Crea",
+      "Controla",
+      "Calcula"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "En la matriz procesos-datos, la letra U significa:",
+    opts: [
+      "Utiliza",
+      "Unifica",
+      "Actualiza",
+      "Ubica"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "En la matriz procesos-datos, la letra R significa:",
+    opts: [
+      "Reemplaza",
+      "Reporta",
+      "Registra",
+      "Consulta"
+    ],
+    ans: 3,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es el propósito de la matriz procesos-datos?",
+    opts: [
+      "Diseñar hardware",
+      "Detectar dependencias entre procesos y datos",
+      "Contratar personal",
+      "Crear redes"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "BSP puede aplicarse en:",
+    opts: [
+      "Solo empresas privadas",
+      "Solo instituciones públicas",
+      "Solo hospitales",
+      "Cualquier organización"
+    ],
+    ans: 3,
+    sec: "multi"
+  },
+  {
+    q: "Los procesos misionales son:",
+    opts: [
+      "Actividades centrales que generan valor",
+      "Actividades opcionales",
+      "Actividades recreativas",
+      "Actividades externas"
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál de los siguientes es un proceso de apoyo?",
+    opts: [
+      "Ventas",
+      "Compras",
+      "Producción principal",
+      "Atención al cliente"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "En el ejemplo práctico, uno de los problemas identificados fue:",
+    opts: [
+      "Exceso de sistemas integrados",
+      "Información dispersa entre áreas",
+      "Falta de internet",
+      "Exceso de reportes"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué sistema se propone para la relación con clientes?",
+    opts: [
+      "ERP",
+      "POS",
+      "CRM",
+      "SCM"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué sistema se propone para apoyar la toma de decisiones gerenciales?",
+    opts: [
+      "Sistema de inventario",
+      "Dashboard gerencial",
+      "CRM",
+      "Correo electrónico"
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Quién define los objetivos y prioridades en un estudio BSP?",
+    opts: [
+      "Usuarios finales",
+      "Equipo de marketing",
+      "Alta dirección",
+      "Proveedores"
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "Según la conclusión de la presentación, BSP enseña a:",
+    opts: [
+      "Comprar software más barato",
+      "Programar aplicaciones móviles",
+      "Planificar tecnología desde la lógica del negocio",
+      "Eliminar departamentos"
+    ],
+    ans: 2,
+    sec: "multi"
+  }
+];
+
+const BANK4 = [
+  {
+    q: "¿Cuál es el propósito fundamental de la Arquitectura Empresarial (EA) desde una perspectiva estratégica orientada al valor?",
+    opts: [
+      "Diseñar exclusivamente la infraestructura de servidores y redes corporativas.",
+      "Alinear la estrategia de negocio con la tecnología para guiar un cambio efectivo.",
+      "Reemplazar las metodologías de desarrollo de software en la organización.",
+      "Ejecutar auditorías contables sobre los presupuestos de TI de la empresa."
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "En el modelo de capas BDAT, ¿cuál es el objetivo principal de la Arquitectura de Datos?",
+    opts: [
+      "Describir cómo se estructura, gestiona y utiliza la información para la toma de decisiones.",
+      "Definir los lenguajes de programación utilizados en los sistemas core.",
+      "Especificar la jerarquía de los recursos humanos.",
+      "Comprar bases de datos físicas para los centros de datos."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "Dentro de la metodología de Conexiam, ¿qué es la 'Cascada de Gobernanza'?",
+    opts: [
+      "Un método para despedir personal ineficiente.",
+      "Un sistema de respaldo de bases de datos en la nube.",
+      "La transmisión de expectativas, restricciones y riesgos desde la estrategia hasta la implementación.",
+      "El flujo de caja de los accionistas hacia la gerencia."
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "De acuerdo con los 4 casos de uso de la EA, ¿qué logra la Arquitectura para apoyar el Portafolio?",
+    opts: [
+      "Asegurar que el código final del software no tenga bugs.",
+      "Definir la misión y visión a 10 años de la empresa.",
+      "Revisar los contratos de mantenimiento de hardware.",
+      "Seleccionar los proyectos correctos y armar una hoja de ruta (Roadmap) alineada al presupuesto."
+    ],
+    ans: 3,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál es el núcleo central del framework TOGAF para el desarrollo de arquitecturas?",
+    opts: [
+      "El método ADM (Architecture Development Method).",
+      "La Matriz Ontológica.",
+      "El Modelo de Rendimiento (PRM).",
+      "La Vista de Sistemas (SV)."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "¿Cómo aborda el framework de Zachman la Arquitectura Empresarial?",
+    opts: [
+      "Como una secuencia ágil de desarrollo de software.",
+      "Como una práctica de consultoría orientada al valor rápido.",
+      "Como una ontología que clasifica artefactos cruzando interrogantes básicos con las perspectivas de los actores.",
+      "Como un conjunto de reglas militares inquebrantables."
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "Si una agencia gubernamental requiere que todos los ministerios compartan la misma estructura de datos, ¿qué framework es ideal?",
+    opts: [
+      "Gartner EA.",
+      "DoDAF.",
+      "ArchiMate.",
+      "FEAF (Federal Enterprise Architecture Framework)."
+    ],
+    ans: 3,
+    sec: "multi"
+  },
+  {
+    q: "¿En qué se diferencia el enfoque de Gartner del de TOGAF?",
+    opts: [
+      "Gartner prohíbe el uso de bases de datos relacionales.",
+      "Gartner se enfoca fuertemente en el valor de negocio y el impacto futuro por encima de la burocracia documental.",
+      "Gartner es un lenguaje de modelado estrictamente visual.",
+      "Gartner exige el uso de la matriz ontológica de 36 celdas."
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Qué representa el color amarillo en el estándar de modelado ArchiMate?",
+    opts: [
+      "Capa de Tecnología.",
+      "Capa de Motivación.",
+      "Capa de Negocio.",
+      "Capa de Aplicaciones."
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "En ArchiMate, ¿qué indica una flecha de 'Servicio' (Serving) trazada desde la Capa de Tecnología hacia la Capa de Aplicaciones?",
+    opts: [
+      "Que la aplicación está a punto de ser eliminada.",
+      "Que el hardware proporciona infraestructura que hace posible que el software funcione.",
+      "Que el negocio no requiere de dicha aplicación.",
+      "Que la base de datos fue diseñada por el equipo de negocio."
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "En las metodologías de EA modernas, ¿qué significa 'Planificación Basada en Capacidades'?",
+    opts: [
+      "Contratar más desarrolladores para la empresa.",
+      "Identificar qué habilidades o funciones le faltan al negocio para lograr sus metas antes de adquirir tecnología.",
+      "Calcular la velocidad del ancho de banda de la red.",
+      "Aumentar la capacidad de memoria RAM en servidores físicos."
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "¿Cuál de las siguientes es una tendencia crítica en la Capa Tecnológica moderna (2026)?",
+    opts: [
+      "Volver a arquitecturas de software monolíticas.",
+      "Eliminar por completo las bases de datos en las empresas.",
+      "Construir centros de datos locales para evitar cualquier proveedor externo.",
+      "El uso de microservicios y contenedores como Docker o Kubernetes."
+    ],
+    ans: 3,
+    sec: "multi"
+  },
+  {
+    q: "Según Conexiam, uno de los 4 elementos vitales de una organización es la 'Creación y Captura de Valor'. ¿A qué se refiere?",
+    opts: [
+      "Al pago de impuestos al estado.",
+      "A entender por qué los clientes eligen a la empresa y cómo esta genera ganancias a partir de ello.",
+      "A la cantidad de código fuente generado al mes.",
+      "A la creación de diagramas de red complejos."
+    ],
+    ans: 1,
+    sec: "multi"
+  },
+  {
+    q: "En el contexto de modelado, ¿qué visión ofrecen los 'Modelos de Contexto'?",
+    opts: [
+      "Demuestran el flujo de ingresos detallado.",
+      "Listan todas las habilidades tecnológicas faltantes.",
+      "Ayudan a entender 'dónde estamos parados' e incluyen ecosistemas y organigramas.",
+      "Describen el modelo entidad-relación de la base de datos."
+    ],
+    ans: 2,
+    sec: "multi"
+  },
+  {
+    q: "Una Arquitectura Dirigida por Eventos (Event-Driven) se caracteriza por:",
+    opts: [
+      "Reaccionar en tiempo real a las acciones del sistema utilizando tecnologías como Apache Kafka.",
+      "Procesar datos exclusivamente en lotes manuales nocturnos.",
+      "Requerir la aprobación humana obligatoria para cada transacción.",
+      "No utilizar bases de datos de ninguna naturaleza."
+    ],
+    ans: 0,
+    sec: "multi"
+  },
+  {
+    q: "El Análisis de Brecha (Gap Analysis) consiste en descubrir la diferencia entre la Línea Base y la Arquitectura Destino.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 0,
+    sec: "tf"
+  },
+  {
+    q: "La metodología de Gartner exige a las empresas llenar una matriz estricta de 36 celdas antes de programar una solución.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "En el modelo BDAT, la capa de Aplicación gestiona la estructura organizacional de los equipos humanos de la empresa.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "DoDAF es un framework excelente para misiones críticas, pero se considera demasiado complejo y burocrático para la mayoría de las empresas privadas.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 0,
+    sec: "tf"
+  },
+  {
+    q: "La Fase A del método ADM en TOGAF está destinada al diseño final detallado de los servidores en la nube.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "La 'Línea Base' (Baseline Architecture) representa la arquitectura soñada e ideal a la que aspira llegar la organización en 5 años.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "La relación de Realización (Realization) en ArchiMate se utiliza para mostrar cómo una entidad técnica materializa o hace 'real' a una entidad más abstracta.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 0,
+    sec: "tf"
+  },
+  {
+    q: "La gobernanza de la EA tiene la función de asegurar que los equipos de implementación respeten los principios y estándares arquitectónicos.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 0,
+    sec: "tf"
+  },
+  {
+    q: "En las tendencias actuales, el enfoque 'Serverless' implica que la organización debe comprar y alojar físicamente sus propios servidores sin delegar en terceros.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "Un 'Stakeholder' o parte interesada solo incluye al equipo de programadores informáticos.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "En el contexto de TOGAF, el Contrato de Arquitectura asegura legalmente que los proveedores externos no roben información.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "El Business Model Canvas es considerado por los expertos como un Modelo de Contexto.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "Una de las desventajas de FEAF es que es demasiado rígido para empresas ágiles o startups modernas.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 0,
+    sec: "tf"
+  },
+  {
+    q: "En ArchiMate, los colores estandarizados de las tres capas principales son amarillo, azul y verde.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 0,
+    sec: "tf"
+  },
+  {
+    q: "La EA para 'Apoyar el Proyecto' se centra exclusivamente en definir la visión de la empresa a 10 años.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "TOGAF es utilizado por menos del 10% de las grandes empresas a nivel mundial.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "Los modelos organizacionales (como los organigramas) ayudan a entender cómo se estructuran las personas dentro de una entidad.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 0,
+    sec: "tf"
+  },
+  {
+    q: "En el ADM de TOGAF, las fases B, C y D elaboran las arquitecturas centrales de Negocio, Sistemas de Información y Tecnología.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 0,
+    sec: "tf"
+  },
+  {
+    q: "Una ventaja de usar Agentes de IA en arquitecturas modernas es su capacidad para ejecutar flujos transaccionales autónomos sin intervención humana constante.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 0,
+    sec: "tf"
+  },
+  {
+    q: "La Arquitectura Empresarial fomenta el desarrollo de 'Silos de Información' en los departamentos.",
+    opts: [
+      "Verdadero",
+      "Falso"
+    ],
+    ans: 1,
+    sec: "tf"
+  },
+  {
+    q: "El framework _______________ utiliza una matriz ontológica estructurada en 6 columnas por 6 filas, cruzando perspectivas con interrogantes básicos.",
+    opts: [
+      "FEAF",
+      "Zachman",
+      "DoDAF",
+      "Gartner"
+    ],
+    ans: 1,
+    sec: "fill"
+  },
+  {
+    q: "El lenguaje de modelado visual estándar a nivel internacional para representar diagramas de Arquitectura Empresarial es _______________.",
+    opts: [
+      "ArchiMate",
+      "Python",
+      "C++",
+      "UML"
+    ],
+    ans: 0,
+    sec: "fill"
+  },
+  {
+    q: "La diferencia estructural calculada entre la Arquitectura de Línea Base y la Arquitectura Destino se conoce técnicamente como Análisis de _______________.",
+    opts: [
+      "Interfaz",
+      "Contenedor",
+      "Monolito",
+      "Brecha (Gap)"
+    ],
+    ans: 3,
+    sec: "fill"
+  },
+  {
+    q: "La Arquitectura de _______________ define qué software (como un CRM o App Móvil) se utiliza para automatizar un proceso de negocio.",
+    opts: [
+      "Tecnología",
+      "Negocio",
+      "Aplicaciones",
+      "Datos"
+    ],
+    ans: 2,
+    sec: "fill"
+  },
+  {
+    q: "La capacidad técnica de que dos sistemas distintos hablen entre sí de manera transparente y eficiente se denomina _______________.",
+    opts: [
+      "Latencia",
+      "Interoperabilidad",
+      "Cifrado",
+      "Hardware"
+    ],
+    ans: 1,
+    sec: "fill"
+  },
+  {
+    q: "El núcleo metodológico iterativo del framework TOGAF, compuesto por fases de la A a la H, se llama _______________.",
+    opts: [
+      "SOA",
+      "PRM",
+      "ADM (Architecture Development Method)",
+      "CRM"
+    ],
+    ans: 2,
+    sec: "fill"
+  },
+  {
+    q: "En el mercado laboral moderno, un profesional que diseña la infraestructura elástica subyacente en Amazon Web Services (AWS) se certifica como Arquitecto de _______________.",
+    opts: [
+      "Business Canvas",
+      "Nube (Cloud Architecture)",
+      "ArchiMate",
+      "DoDAF"
+    ],
+    ans: 1,
+    sec: "fill"
+  },
+  {
+    q: "El framework _______________ es exigido por el gobierno de EE. UU. para organizar sistemas gubernamentales mediante modelos de referencia estrictos.",
+    opts: [
+      "Zachman",
+      "FEAF",
+      "Gartner",
+      "TOGAF"
+    ],
+    ans: 1,
+    sec: "fill"
+  },
+  {
+    q: "Según Conexiam, la EA se divide en cuatro grandes Casos de Uso: Apoyar la Estrategia, el Portafolio, el Proyecto y la _______________ de Soluciones.",
+    opts: [
+      "Auditoría",
+      "Venta",
+      "Entrega (Delivery)",
+      "Destrucción"
+    ],
+    ans: 2,
+    sec: "fill"
+  },
+  {
+    q: "Desacoplar un sistema monolítico grande en piezas pequeñas e independientes que corren utilizando contenedores (Docker) se conoce como arquitectura de _______________.",
+    opts: [
+      "Microservicios",
+      "Monolitos",
+      "Lotes",
+      "Mainframes"
+    ],
+    ans: 0,
+    sec: "fill"
+  },
+  {
+    q: "En ArchiMate, la infraestructura tecnológica física y lógica como servidores, routers y bases de datos se dibujan siempre utilizando el color _______________.",
+    opts: [
+      "Amarillo",
+      "Verde",
+      "Azul",
+      "Rojo"
+    ],
+    ans: 1,
+    sec: "fill"
+  },
+  {
+    q: "El marco de _______________ es altamente apreciado por los CEOs debido a que prioriza los resultados estratégicos y el valor de negocio sobre la documentación exhaustiva.",
+    opts: [
+      "DoDAF",
+      "Zachman",
+      "Gartner",
+      "FEAF"
+    ],
+    ans: 2,
+    sec: "fill"
+  },
+  {
+    q: "En lugar de preguntar primero qué software comprar, la Planificación Basada en _______________ analiza qué habilidad táctica u operativa le falta a la organización para cumplir sus objetivos.",
+    opts: [
+      "Presupuestos",
+      "Descuentos",
+      "Capacidades (Capabilities)",
+      "Código"
+    ],
+    ans: 2,
+    sec: "fill"
+  },
+  {
+    q: "Una _______________ de Revisión de Arquitectura (Architecture Review Board) es un comité centralizado encargado de supervisar y gobernar los proyectos para evitar desviaciones del diseño original.",
+    opts: [
+      "Base de datos",
+      "Matriz",
+      "Nube",
+      "Junta (Board)"
+    ],
+    ans: 3,
+    sec: "fill"
+  },
+  {
+    q: "Para representar gráficamente que un servidor físico aloja y ejecuta un programa de software abstracto, ArchiMate utiliza una flecha punteada denominada relación de _______________.",
+    opts: [
+      "Servicio (Serving)",
+      "Realización (Realization)",
+      "Disparo (Triggering)",
+      "Agregación (Aggregation)"
+    ],
+    ans: 1,
+    sec: "fill"
+  }
+];
+
+/* ── Metadatos de los bancos ── */
+const BANK_META = {
+  1: { name:"Banco 1 — IE",    short:"IE",   color:"qbb1", data: BANK1 },
+  2: { name:"Banco 2 — SISP",  short:"SISP", color:"qbb2", data: BANK2 },
+  3: { name:"Banco 3 — BSP",   short:"BSP",  color:"qbb3", data: BANK3 },
+  4: { name:"Banco 4 — EA",    short:"EA",   color:"qbb4", data: BANK4 },
+};
+
+/* ═══════════════════════════════════════════
+   ESTADO GLOBAL
+═══════════════════════════════════════════ */
+const SEC_LABELS = { multi:"Selección múltiple", tf:"Verdadero / Falso", fill:"Completar" };
+const SEC_PILLS  = { multi:"pill-multi", tf:"pill-tf", fill:"pill-fill" };
+const LETTERS    = ["a","b","c","d"];
+
+let ST = {
+  mode:null,       // 'single' | 'consol'
+  bankId:null,     // 1–4 (solo en single)
+  qs:[],           // preguntas activas
+  idx:0,
+  ok:0,
+  results:[],      // null = sin responder | {q, chosen, correct, skipped}
+  order:'seq',
+  consolN:20,
+  consolOrder:'seq',
+  navEnabled:false,
+  consolNavEnabled:false,
+};
+
+/* Inyectar propiedad 'bank' a cada pregunta y actualizar UI del home */
+(function initBanks(){
+  [1,2,3,4].forEach(n=>{
+    const meta = BANK_META[n];
+    meta.data.forEach(q=>{ q.bank=n; });
+
+    const card  = document.getElementById('card-b'+n);
+    const badge = document.getElementById('badge-b'+n);
+    const lbl   = document.getElementById('lbl-b'+n);
+
+    if(!meta.data.length){
+      card.classList.add('unavail');
+      badge.textContent  = 'No disponible';
+      badge.className    = 'badge badge-no';
+      lbl.textContent    = 'Sin enviar';
+    } else {
+      lbl.textContent = meta.data.length+' preguntas';
+    }
+  });
+
+  /* Actualizar descripción del examen consolidado */
+  const avail = [1,2,3,4].filter(n=>BANK_META[n].data.length>0);
+  document.getElementById('consol-desc').textContent =
+    'Mezcla equitativa de '+avail.length+' banco'+(avail.length!==1?'s':'')+' disponible'+(avail.length!==1?'s':'');
+
+  /* Slider máximo = total de preguntas disponibles */
+  const total = avail.reduce((s,n)=>s+BANK_META[n].data.length,0);
+  const slider = document.getElementById('exam-slider');
+  slider.max   = Math.max(total, 4);
+  slider.value = Math.min(20, total);
+  updSlider();
+})();
+
+/* ═══════════════════════════════════════════
+   NAVEGACIÓN DE PÁGINAS
+═══════════════════════════════════════════ */
+function $(id){ return document.getElementById(id); }
+function show(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  $(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function goHome(){
+  closeModal();
+  ST.mode=null;
+  show('pg-home');
+}
+
+function backToResult(){ show('pg-result'); }
+
+/* ═══════════════════════════════════════════
+   SETUP — BANCO INDIVIDUAL
+═══════════════════════════════════════════ */
+function goSetup(n){
+  const meta = BANK_META[n];
+  if(!meta.data.length) return; // No disponible
+
+  ST.bankId=n; ST.mode='single'; ST.navEnabled=false;
+  $('setup-title').textContent = meta.name;
+  $('setup-sub').textContent   = meta.data.length+' preguntas disponibles';
+  setOrder('seq');
+  syncToggleSingle();
+  show('pg-setup');
+}
+
+function setOrder(o){
+  ST.order=o;
+  $('ord-seq').classList.toggle('sel',o==='seq');
+  $('ord-rnd').classList.toggle('sel',o==='rnd');
+}
+
+function toggleNav(){
+  ST.navEnabled=!ST.navEnabled;
+  syncToggleSingle();
+}
+function syncToggleSingle(){
+  $('tog-nav').classList.toggle('on',ST.navEnabled);
+}
+
+function startQuiz(){
+  const data = BANK_META[ST.bankId].data;
+  let qs = [...data];
+  if(ST.order==='rnd') qs=shuffle(qs);
+  ST.qs=qs; ST.idx=0; ST.ok=0; ST.results=new Array(qs.length).fill(null);
+
+  /* Etiqueta superior del quiz */
+  $('quiz-title-lbl').textContent = BANK_META[ST.bankId].short;
+
+  /* Ocultar badge de banco (no es consolidado) */
+  $('q-bank-row').style.display='none';
+
+  show('pg-quiz');
+  renderQ();
+}
+
+/* ═══════════════════════════════════════════
+   SETUP — EXAMEN CONSOLIDADO
+═══════════════════════════════════════════ */
+function goConsolSetup(){
+  const avail = [1,2,3,4].filter(n=>BANK_META[n].data.length>0);
+  if(!avail.length){ alert('No hay bancos disponibles aún.'); return; }
+
+  ST.mode='consol'; ST.consolNavEnabled=false;
+  const total = avail.reduce((s,n)=>s+BANK_META[n].data.length,0);
+  const slider = $('exam-slider');
+  slider.max   = total;
+  slider.value = Math.min(ST.consolN||20, total);
+
+  $('consol-info-text').textContent =
+    'Las preguntas se reparten equitativamente entre los '+avail.length+' bancos disponibles';
+
+  setCOrder('seq');
+  syncToggleConsol();
+  updSlider();
+  show('pg-consol');
+}
+
+function setCOrder(o){
+  ST.consolOrder=o;
+  $('cord-seq').classList.toggle('sel',o==='seq');
+  $('cord-rnd').classList.toggle('sel',o==='rnd');
+}
+
+function toggleNavConsol(){
+  ST.consolNavEnabled=!ST.consolNavEnabled;
+  syncToggleConsol();
+}
+function syncToggleConsol(){
+  $('tog-nav-consol').classList.toggle('on',ST.consolNavEnabled);
+}
+
+function updSlider(){
+  const v   = parseInt($('exam-slider').value);
+  ST.consolN = v;
+  $('slider-val').textContent = v;
+
+  const avail = [1,2,3,4].filter(n=>BANK_META[n].data.length>0);
+  const perBank = Math.floor(v / avail.length);
+  const rem     = v - perBank * avail.length;
+  $('slider-sub').textContent =
+    '~'+perBank+' preguntas por banco'+(rem>0?' (+'+rem+' extra)':'')+
+    ' ('+avail.length+' banco'+(avail.length!==1?'s':'')+' disponible'+(avail.length!==1?'s':'')+')';
+}
+
+function startConsol(){
+  /* Distribución equitativa entre bancos disponibles */
+  const avail = [1,2,3,4].filter(n=>BANK_META[n].data.length>0);
+  const total  = ST.consolN;
+  const base   = Math.floor(total / avail.length);
+  let   extra  = total - base * avail.length;
+
+  let qs = [];
+  avail.forEach(n=>{
+    const pool    = shuffle([...BANK_META[n].data]);
+    const take    = base + (extra>0 ? (extra--,1) : 0);
+    qs = qs.concat(pool.slice(0, Math.min(take, pool.length)));
+  });
+
+  /* Mezcla final si el orden es aleatorio */
+  if(ST.consolOrder==='rnd') qs=shuffle(qs);
+
+  ST.qs=qs; ST.idx=0; ST.ok=0; ST.results=new Array(qs.length).fill(null);
+  ST.navEnabled=ST.consolNavEnabled;
+
+  $('quiz-title-lbl').textContent='Examen consolidado';
+  $('q-bank-row').style.display='block'; /* Mostrar badge de banco */
+
+  show('pg-quiz');
+  renderQ();
+}
+
+/* ═══════════════════════════════════════════
+   CANCELAR EXAMEN (modal)
+═══════════════════════════════════════════ */
+function confirmCancel(){
+  $('modal-cancel').classList.add('open');
+}
+function closeModal(){
+  $('modal-cancel').classList.remove('open');
+}
+function doCancel(){
+  closeModal();
+  goHome();
+}
+
+/* ═══════════════════════════════════════════
+   RENDER PREGUNTA
+═══════════════════════════════════════════ */
+function buildDots(){
+  const wrap=$('ndots-wrap'), dots=$('ndots');
+  if(!ST.navEnabled){ wrap.style.display='none'; return; }
+  wrap.style.display='block';
+  dots.innerHTML=ST.qs.map((_,i)=>{
+    const r=ST.results[i];
+    let cls='ndot';
+    if(i===ST.idx)       cls+=' current';
+    else if(r===null)    cls+='';
+    else if(r.skipped)   cls+=' skipped';
+    else                 cls+=r.correct?' done-ok':' done-no';
+    return `<button class="${cls}" onclick="jumpTo(${i})" aria-label="Pregunta ${i+1}">${i+1}</button>`;
+  }).join('');
+}
+
+function jumpTo(i){
+  if(i===ST.idx) return;
+  ST.idx=i; renderQ();
+}
+
+function renderQ(){
+  const q=ST.qs[ST.idx], total=ST.qs.length;
+
+  /* Barra de progreso */
+  $('pbar').style.width=Math.round((ST.idx/total)*100)+'%';
+  $('q-counter').textContent=(ST.idx+1)+' / '+total;
+
+  /* Píldora de sección */
+  const pill=$('q-pill');
+  pill.textContent = SEC_LABELS[q.sec]||q.sec;
+  pill.className   = 'q-pill '+(SEC_PILLS[q.sec]||'pill-multi');
+
+  /* Badge del banco (examen consolidado) */
+  const bankRow  = $('q-bank-row');
+  const bankBadge= $('q-bank-badge');
+  if(ST.mode==='consol'){
+    bankRow.style.display='block';
+    const meta=BANK_META[q.bank];
+    bankBadge.textContent  = meta.short;
+    bankBadge.className    = 'q-bank-badge '+meta.color;
+  } else {
+    bankRow.style.display='none';
+  }
+
+  /* Texto de la pregunta */
+  $('q-text').textContent=q.q;
+
+  /* Botones de navegación */
+  $('btn-prev').style.display   = ST.idx===0      ? 'none':'flex';
+  $('btn-next').style.display   = ST.idx===total-1? 'none':'flex';
+  $('btn-finish').style.display = ST.idx===total-1? 'flex':'none';
+
+  buildDots();
+
+  /* Opciones */
+  const prev=ST.results[ST.idx];
+  if(prev!==null){
+    $('opts-wrap').innerHTML=q.opts.map((o,i)=>{
+      let cls='opt';
+      if(i===q.ans)                         cls+=' show-correct';
+      else if(!prev.skipped && i===prev.chosen && !prev.correct) cls+=' sel-wrong';
+      return `<button class="${cls}" disabled>${LETTERS[i]}) ${o}</button>`;
+    }).join('');
+    renderFb(prev,q);
+  } else {
+    $('opts-wrap').innerHTML=q.opts.map((o,i)=>
+      `<button class="opt" onclick="choose(${i})">${LETTERS[i]}) ${o}</button>`
+    ).join('');
+    $('fb').style.display='none';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   ELEGIR OPCIÓN
+═══════════════════════════════════════════ */
+function choose(i){
+  const q=ST.qs[ST.idx];
+  const btns=document.querySelectorAll('.opt');
+  btns.forEach(b=>b.disabled=true);
+  const correct=(i===q.ans);
+  btns[i].classList.add(correct?'sel-correct':'sel-wrong');
+  if(!correct) btns[q.ans].classList.add('show-correct');
+  const r={q:q,chosen:i,correct:correct,skipped:false};
+  ST.results[ST.idx]=r;
+  if(correct) ST.ok++;
+  renderFb(r,q);
+  buildDots();
+}
+
+function renderFb(r,q){
+  const fb=$('fb'); fb.style.display='block';
+  if(r.skipped){
+    fb.className='fb-box fb-skip';
+    fb.innerHTML='<div class="fb-title"><i class="fa-solid fa-triangle-exclamation"></i> Sin responder</div>'
+      +'<div class="fb-hint">Respuesta correcta: '+LETTERS[q.ans]+') '+q.opts[q.ans]+'</div>';
+  } else if(r.correct){
+    fb.className='fb-box fb-ok';
+    fb.innerHTML='<div class="fb-title"><i class="fa-solid fa-circle-check"></i> ¡Correcto!</div>';
+  } else {
+    fb.className='fb-box fb-no';
+    fb.innerHTML='<div class="fb-title"><i class="fa-solid fa-circle-xmark"></i> Incorrecto</div>'
+      +'<div class="fb-hint">Respuesta correcta: '+LETTERS[q.ans]+') '+q.opts[q.ans]+'</div>';
+  }
+}
+
+/* ═══════════════════════════════════════════
+   NAVEGACIÓN ENTRE PREGUNTAS
+═══════════════════════════════════════════ */
+function prevQ(){
+  if(ST.idx>0){ ST.idx--; renderQ(); }
+}
+function nextQ(){
+  if(ST.idx<ST.qs.length-1){ ST.idx++; renderQ(); }
+}
+
+/* ═══════════════════════════════════════════
+   TERMINAR Y ENVIAR
+═══════════════════════════════════════════ */
+function finishQuiz(){
+  /* Marcar preguntas sin responder como incorrectas */
+  ST.qs.forEach((_,i)=>{
+    if(ST.results[i]===null){
+      ST.results[i]={q:ST.qs[i],chosen:-1,correct:false,skipped:true};
+    }
+  });
+  showResult();
+}
+
+/* ═══════════════════════════════════════════
+   RESULTADOS
+═══════════════════════════════════════════ */
+function showResult(){
+  show('pg-result');
+  const total  = ST.qs.length;
+  const ok     = ST.results.filter(r=>r&&r.correct).length;
+  const skip   = ST.results.filter(r=>r&&r.skipped).length;
+  const bad    = total-ok;
+  const pct    = Math.round(ok/total*100);
+  $('r-pct').textContent   = pct+'%';
+  $('r-ok').textContent    = ok;
+  $('r-bad').textContent   = bad;
+  $('r-skip').textContent  = skip;
+  $('r-total').textContent = total;
+  ST.ok=ok;
+  $('r-msg').textContent =
+    pct>=90 ? '¡Excelente dominio del tema!'       :
+    pct>=70 ? 'Buen resultado, sigue repasando'    :
+    pct>=50 ? 'Vas bien, refuerza los temas débiles':
+              'Sigue practicando, ¡tú puedes!';
+  $('btn-retry').style.display = bad>0?'block':'none';
+}
+
+/* ═══════════════════════════════════════════
+   REPASAR INCORRECTAS
+═══════════════════════════════════════════ */
+function retryWrong(){
+  const qs=ST.results.filter(r=>r&&!r.correct).map(r=>r.q);
+  if(!qs.length) return;
+  ST.qs=qs; ST.idx=0; ST.ok=0; ST.results=new Array(qs.length).fill(null);
+  $('quiz-title-lbl').textContent='Repaso de incorrectas';
+  show('pg-quiz'); renderQ();
+}
+
+/* ═══════════════════════════════════════════
+   REVISIÓN COMPLETA
+═══════════════════════════════════════════ */
+function goReview(){
+  show('pg-review');
+  const done=ST.results.filter(r=>r);
+  $('rev-sub').textContent=done.length+' preguntas respondidas';
+  $('rev-list').innerHTML=ST.results.map((r,i)=>{
+    if(!r) return '';
+    const q=r.q;
+    const sCls  = r.correct?'rs-ok':(r.skipped?'rs-skip':'rs-no');
+    const sIcon = r.correct?'fa-check':(r.skipped?'fa-minus':'fa-xmark');
+    const meta  = BANK_META[q.bank];
+    const bankPill = `<span class="rev-bank-pill ${meta.color}">${meta.short}</span>`;
+    const optsHtml = q.opts.map((o,oi)=>{
+      let cls='ro-neutral', badge='';
+      if(oi===q.ans){ cls='ro-correct'; badge='<div class="ro-badge">✓ Correcta</div>'; }
+      else if(!r.skipped && oi===r.chosen && !r.correct){ cls='ro-wrong'; badge='<div class="ro-badge">✗ Tu respuesta</div>'; }
+      return `<div class="rev-opt ${cls}">${badge}${LETTERS[oi]}) ${o}</div>`;
+    }).join('');
+    const skipNote = r.skipped
+      ? '<div class="rev-opt ro-skip"><div class="ro-badge">Sin responder — contada como incorrecta</div></div>' : '';
+    return `<div class="rev-item">
+      <div class="rev-head" onclick="toggleRev(${i})">
+        <div class="rq">${bankPill}<br><strong>${i+1}.</strong> ${q.q}</div>
+        <div class="rev-status ${sCls}"><i class="fa-solid ${sIcon}"></i></div>
+      </div>
+      <div class="rev-body" id="rb-${i}">${optsHtml}${skipNote}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleRev(i){ $('rb-'+i).classList.toggle('open'); }
+
+/* ═══════════════════════════════════════════
+   UTILIDADES
+═══════════════════════════════════════════ */
+function shuffle(a){
+  let r=[...a];
+  for(let i=r.length-1;i>0;i--){
+    let j=Math.floor(Math.random()*(i+1));
+    [r[i],r[j]]=[r[j],r[i]];
+  }
+  return r;
+}
+</script>
+</body>
+</html>
